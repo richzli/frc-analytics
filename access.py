@@ -10,5 +10,5 @@ headers = {
     "Authorization": "Basic " + token
 }
 
-request = Request(URL HERE)
+request = Request("URL HERE", headers=headers)
 response = urlopen(request).read()
