@@ -2,6 +2,7 @@ import base64
 from urllib.request import Request, urlopen
 import json
 import csv #https://docs.python.org/3/library/csv.html
+import dataparser
 
 tokenfile = open("token.secret", "r")
 token = str(base64.b64encode(tokenfile.readline().encode()))[2:-1]
@@ -20,13 +21,8 @@ response = urlopen(request).read()
 
 matchdata = json.loads(response)["Matches"]
 
-datafile = open("data/"+year+eventcode+".csv", "w+")
-csvwriter = csv.writer(datafile)
+datafile = open("data/"+year+eventcode+".csv", "w+", newline="")
 
-header = matchdata[0].keys()
-csvwriter.writerow(header)
-
-for match in matchdata:
-    csvwriter.writerow(match.values())
+dataparser.json_to_csv(matchdata, datafile)
 
 datafile.close()
