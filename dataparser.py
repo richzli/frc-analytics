@@ -2,8 +2,8 @@ import csv
 
 def json_to_csv(jsondict, csvfile):
     headers = list(jsondict[0].keys())[:-1] + \
-              ["Red1", "Red1dq", "Red2", "Red2dq", "Red3", "Red3dq",
-               "Blue1", "Blue1dq", "Blue2", "Blue2dq", "Blue3", "Blue3dq"]
+              ["red1", "red1dq", "red2", "red2dq", "red3", "red3dq",
+               "blue1", "blue1dq", "blue2", "blue2dq", "blue3", "blue3dq"]
                 
     writer = csv.DictWriter(csvfile, fieldnames=headers)
     writer.writeheader()
@@ -12,6 +12,6 @@ def json_to_csv(jsondict, csvfile):
         teams = list(match["teams"])
         del match["teams"]
         for team in teams:
-            match[team["station"]] = str(team["teamNumber"])
-            match[team["station"]+"dq"] = team["dq"]
+            match[team["station"].lower()] = str(team["teamNumber"])
+            match[team["station"].lower()+"dq"] = team["dq"]
         writer.writerow(match)
