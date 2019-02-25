@@ -1,4 +1,6 @@
 import access
+import dataparser
+import pandas as pd
 import tkinter as tk
 from os.path import isfile
 
@@ -20,6 +22,10 @@ class StatsWindow(tk.Tk):
         
         self.titlebar = tk.Frame(self)
         self.titlebar.grid(row=0, column=0, columnspan=2, sticky="NSEW")
+
+        self.tbimage = tk.PhotoImage(file="resources/logo32.gif")
+        self.tbthumbnail = tk.Label(self.titlebar, image=self.tbimage)
+        self.tbthumbnail.pack(side="left")
         
         self.tbheader = tk.Label(self.titlebar, text = "Team 3061 Data Analytics",
                        font = self.font1 + (self.fontsize1,), justify="center")
@@ -65,7 +71,8 @@ class StatsWindow(tk.Tk):
         self.dlyearentry.grid(row=2, column=1, sticky="W")
 
         self.dlload = tk.Button(self.dataloader, text = "Load Data",
-                                font = self.font1 + (self.fontsize1,))
+                                font = self.font1 + (self.fontsize1,),
+                                command = self.get_data)
         self.dlload.grid(row=3, column=0, columnspan=2)
 
         self.dlstatustext = tk.StringVar()
@@ -128,9 +135,23 @@ class StatsWindow(tk.Tk):
         self.dvaf.grid(row=5, column=1, sticky="W")
 
 
-    def acquire(self):
-        pass
+    def get_data(self):
+        self.dlstatustext.set("Loading...")
+        
+        year = self.dlyearentry.get()
+        ecode = self.dlcodeentry.get()
 
+        if isfile("data/"+year+ecode+".csv"):
+            df = dataparser.csv_to_dataframe("data/"+year+ecode+".csv")
+            self.dlstatustext.set(year+ecode+".csv loaded.")
+        else:
+            try:
+                access.fetch(year, ecode)
+                df = dataparser.csv_to_dataframe("data/"+year+ecode+".csv")
+                self.dlstatustext.set(year+ecode+".csv loaded.")
+            except:
+                self.dlstatustext.set("Unable to fetch data.")
+    
     def start_move(self, event):
         self.x = event.x
         self.y = event.y

@@ -1,4 +1,5 @@
 import csv
+import pandas
 
 def json_to_csv(jsondict, csvfile):
     headers = list(jsondict[0].keys())[:-1] + \
@@ -15,3 +16,6 @@ def json_to_csv(jsondict, csvfile):
             match[team["station"].lower()] = str(team["teamNumber"])
             match[team["station"].lower()+"dq"] = team["dq"]
         writer.writerow(match)
+
+def csv_to_dataframe(csvfile):
+    pass
