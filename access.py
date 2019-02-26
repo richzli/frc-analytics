@@ -1,7 +1,9 @@
+
 import base64
 from urllib.request import Request, urlopen
 import json
 import csv
+import pandas as pd
 
 tokenfile = open("token.secret", "r")
 token = str(base64.b64encode(tokenfile.readline().encode()))[2:-1]
@@ -24,9 +26,15 @@ with open('data2017ILCH.csv', 'w+') as csvfile:
     writer = csv.DictWriter(csvfile, fieldnames = headers)
     writer.writeheader()
     for match in matchdata:
-       writer.writerow(match)
-    
-    
+      #Copied from RLi:
+      teams = list(match["teams"])
+      del match["teams"]
+      for team in teams:
+         match[team["station"].lower()] = str(team["teamNumber"])
+         match[team["station"].lower()+"dq"] = team["dq"]
 
-
+      writer.writerow(match)
+    
 csvfile.close()
+
+dataframe = pd.read_csv('data2017ILCH.csv')
