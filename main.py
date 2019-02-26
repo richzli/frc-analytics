@@ -1,5 +1,4 @@
-import access
-import dataparser
+import accessor
 import pandas as pd
 import tkinter as tk
 from os.path import isfile
@@ -7,8 +6,9 @@ from os.path import isfile
 class StatsWindow(tk.Tk):
     def __init__(self, *args, **kwargs):
         tk.Tk.__init__(self, *args, **kwargs)
-        self.overrideredirect(1)
-        #self.title("Team 3061 Data Analytics")
+        self.title("Individual Team Analysis")
+        self.iconbitmap("resources/logo.ico")
+        self.resizable(False, False)
         self.font1 = ("Calibri Light",) # http://effbot.org/tkinterbook/tkinter-widget-styling.htm
         self.font2 = ("Consolas",)
         self.fontsize1 = 10
@@ -17,38 +17,11 @@ class StatsWindow(tk.Tk):
         tk.Grid.rowconfigure(self, 1, weight=1)
         tk.Grid.columnconfigure(self, 0, weight=1)
         tk.Grid.columnconfigure(self, 1, weight=1)
-        
-        ### TITLE BAR ###
-        
-        self.titlebar = tk.Frame(self)
-        self.titlebar.grid(row=0, column=0, columnspan=2, sticky="NSEW")
-
-        self.tbimage = tk.PhotoImage(file="resources/logo32.gif")
-        self.tbthumbnail = tk.Label(self.titlebar, image=self.tbimage)
-        self.tbthumbnail.pack(side="left")
-        
-        self.tbheader = tk.Label(self.titlebar, text = "Team 3061 Data Analytics",
-                       font = self.font1 + (self.fontsize1,), justify="center")
-        self.tbheader.pack(fill=tk.X, side="left")
-
-         # the following is adapted from Bryan Oakley on StackOverflow
-         # what it does is allow movement of the screen by dragging the top label
-        self.titlebar.bind("<ButtonPress-1>", self.start_move)
-        self.titlebar.bind("<ButtonRelease-1>", self.stop_move)
-        self.titlebar.bind("<B1-Motion>", self.on_move)
-
-        self.tbheader.bind("<ButtonPress-1>", self.start_move)
-        self.tbheader.bind("<ButtonRelease-1>", self.stop_move)
-        self.tbheader.bind("<B1-Motion>", self.on_move)
-
-        self.tbquitbutton = tk.Button(self.titlebar, text = "QUIT", fg = "red",
-                             font = self.font2 + (10, "bold"), command = self.quit)
-        self.tbquitbutton.pack(side="right")
 
         ### DATA LOADER ###
 
         self.dataloader = tk.Frame(self)
-        self.dataloader.grid(row=1, column=0, sticky="NW")
+        self.dataloader.grid(row=0, column=0, sticky="NW", padx=10, pady=10)
 
         self.dlheader = tk.Label(self.dataloader, text = "Data Fetcher",
                                          font = self.font2 + (self.fontsize2, "bold"))
@@ -85,7 +58,7 @@ class StatsWindow(tk.Tk):
         ### DATA VIEWER ###
 
         self.dataviewer = tk.Frame(self)
-        self.dataviewer.grid(row=1, column=1, sticky="NE")
+        self.dataviewer.grid(row=0, column=1, sticky="NE", pady=10, padx=10)
 
         self.dvheader = tk.Label(self.dataviewer, text = "Statistics",
                                          font = self.font2 + (self.fontsize2, "bold"))
@@ -101,7 +74,8 @@ class StatsWindow(tk.Tk):
         self.dvteamentry.grid(row=1, column=1, sticky="W")
 
         self.dvload = tk.Button(self.dataviewer, text = "Get Stats",
-                                font = self.font1 + (self.fontsize1,))
+                                font = self.font1 + (self.fontsize1,),
+                                state="disabled")
         self.dvload.grid(row=2, column=0, columnspan=2)
 
         self.dvgplabel = tk.Label(self.dataviewer, text = "Games Played:",
@@ -136,40 +110,37 @@ class StatsWindow(tk.Tk):
 
 
     def get_data(self):
+        self.df = None
+        self.lock_stats()
         self.dlstatustext.set("Loading...")
         
         year = self.dlyearentry.get()
         ecode = self.dlcodeentry.get()
 
         if isfile("data/"+year+ecode+".csv"):
-            df = dataparser.csv_to_dataframe("data/"+year+ecode+".csv")
+            self.df = pd.read_csv("data/"+year+ecode+".csv")
             self.dlstatustext.set(year+ecode+".csv loaded.")
+            self.unlock_stats()
         else:
             try:
-                access.fetch(year, ecode)
-                df = dataparser.csv_to_dataframe("data/"+year+ecode+".csv")
+                accessor.fetch(year, ecode)
+                self.df = pd.read_csv("data/"+year+ecode+".csv")
                 self.dlstatustext.set(year+ecode+".csv loaded.")
+                self.unlock_stats()
             except:
                 self.dlstatustext.set("Unable to fetch data.")
-    
-    def start_move(self, event):
-        self.x = event.x
-        self.y = event.y
 
-    def stop_move(self, event):
-        self.x = None
-        self.y = None
+    def lock_stats(self):
+        self.dvteamentry.delete(0, "end")
+        self.dvteamentry.config(state="disabled")
+        self.dvload.config(state="disabled")
 
-    def on_move(self, event):
-        deltax = event.x - self.x
-        deltay = event.y - self.y
-        x = self.winfo_x() + deltax
-        y = self.winfo_y() + deltay
-        self.geometry("+%s+%s" % (x,y))
+    def unlock_stats(self):
+        self.dvteamentry.config(state="normal")
+        self.dvload.config(state="normal")
 
 def main():
     app = StatsWindow()
     app.mainloop()
-    app.destroy()
 
 main()

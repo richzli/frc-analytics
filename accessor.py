@@ -1,7 +1,7 @@
 import base64
 from urllib.request import Request, urlopen
 import json
-import dataparser
+import csv
 
 def fetch(year, eventcode):
     tokenfile = open("token.secret", "r")
@@ -18,6 +18,21 @@ def fetch(year, eventcode):
     matchdata = json.loads(response)["Matches"]
 
     datafile = open("data/"+year+eventcode+".csv", "w+", newline="")
-    dataparser.json_to_csv(matchdata, datafile)
+    json_to_csv(matchdata, datafile)
     datafile.close()
 
+def json_to_csv(jsondict, csvfile):
+    headers = list(jsondict[0].keys())[:-1] + \
+              ["red1", "red1dq", "red2", "red2dq", "red3", "red3dq",
+               "blue1", "blue1dq", "blue2", "blue2dq", "blue3", "blue3dq"]
+                
+    writer = csv.DictWriter(csvfile, fieldnames=headers)
+    writer.writeheader()
+    
+    for match in jsondict:
+        teams = list(match["teams"])
+        del match["teams"]
+        for team in teams:
+            match[team["station"].lower()] = str(team["teamNumber"])
+            match[team["station"].lower()+"dq"] = team["dq"]
+        writer.writerow(match)
