@@ -1,4 +1,5 @@
 import accessor
+import analyzer
 import pandas as pd
 import tkinter as tk
 from os.path import isfile
@@ -75,7 +76,7 @@ class StatsWindow(tk.Tk):
 
         self.dvload = tk.Button(self.dataviewer, text = "Get Stats",
                                 font = self.font1 + (self.fontsize1,),
-                                state="disabled")
+                                state="disabled", command=self.display_data)
         self.dvload.grid(row=2, column=0, columnspan=2)
 
         self.dvgplabel = tk.Label(self.dataviewer, text = "Games Played:",
@@ -93,7 +94,7 @@ class StatsWindow(tk.Tk):
         self.dvaplabel.grid(row=4, column=0, sticky="E")
 
         self.dvaptext = tk.StringVar()
-        self.dvap = tk.Entry(self.dataviewer, textvariable=self.dvgptext,
+        self.dvap = tk.Entry(self.dataviewer, textvariable=self.dvaptext,
                              font = self.font1 + (self.fontsize1,), width=8,
                              state="disabled", justify="center")
         self.dvap.grid(row=4, column=1, sticky="W")
@@ -103,14 +104,15 @@ class StatsWindow(tk.Tk):
         self.dvaflabel.grid(row=5, column=0, sticky="E")
 
         self.dvaftext = tk.StringVar()
-        self.dvaf = tk.Entry(self.dataviewer, textvariable=self.dvgptext,
+        self.dvaf = tk.Entry(self.dataviewer, textvariable=self.dvaftext,
                              font = self.font1 + (self.fontsize1,), width=8,
                              state="disabled", justify="center")
         self.dvaf.grid(row=5, column=1, sticky="W")
 
 
     def get_data(self):
-        self.df = None
+        self.dfraw = None
+        self.dfcompiled = None
         self.lock_stats()
         self.dlstatustext.set("Loading...")
         
@@ -118,18 +120,30 @@ class StatsWindow(tk.Tk):
         ecode = self.dlcodeentry.get()
 
         if isfile("data/"+year+ecode+".csv"):
-            self.df = pd.read_csv("data/"+year+ecode+".csv")
+            self.dfraw = pd.read_csv("data/"+year+ecode+".csv")
+            self.dfcompiled = analyzer.compile_teams(self.dfraw)
             self.dlstatustext.set(year+ecode+".csv loaded.")
             self.unlock_stats()
         else:
             try:
-                accessor.fetch(year, ecode)
-                self.df = pd.read_csv("data/"+year+ecode+".csv")
+                accessor.fetch_match(year, ecode)
+                self.dfraw = pd.read_csv("data/"+year+ecode+".csv")
+                self.dfcompiled = analyzer.compile_teams(self.dfraw)
                 self.dlstatustext.set(year+ecode+".csv loaded.")
                 self.unlock_stats()
             except:
                 self.dlstatustext.set("Unable to fetch data.")
 
+    def display_data(self):
+        if int(self.dvteamentry.get()) in self.dfcompiled.index:
+            self.dvgptext.set(str(int(self.dfcompiled.loc[int(self.dvteamentry.get())]["gamesPlayed"])))
+            self.dvaptext.set(str(self.dfcompiled.loc[int(self.dvteamentry.get())]["avgScored"]))
+            self.dvaftext.set(str(self.dfcompiled.loc[int(self.dvteamentry.get())]["avgFouled"]))
+        else:
+            self.dvgptext.set("N/A")
+            self.dvaptext.set("N/A")
+            self.dvaftext.set("N/A")
+    
     def lock_stats(self):
         self.dvteamentry.delete(0, "end")
         self.dvteamentry.config(state="disabled")

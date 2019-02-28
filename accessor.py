@@ -3,7 +3,7 @@ from urllib.request import Request, urlopen
 import json
 import csv
 
-def fetch(year, eventcode):
+def fetch_match(year, eventcode):
     tokenfile = open("token.secret", "r")
     token = str(base64.b64encode(tokenfile.readline().encode()))[2:-1]
 
