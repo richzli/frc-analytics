@@ -114,6 +114,7 @@ class StatsWindow(tk.Tk):
         self.dfraw = None
         self.dfcompiled = None
         self.lock_stats()
+        self.dlload.config(state="disabled")
         self.dlstatustext.set("Loading...")
         
         year = self.dlyearentry.get()
@@ -126,13 +127,15 @@ class StatsWindow(tk.Tk):
             self.unlock_stats()
         else:
             try:
-                accessor.fetch_match(year, ecode)
+                accessor.fetch_matches(year, ecode)
                 self.dfraw = pd.read_csv("data/"+year+ecode+".csv")
                 self.dfcompiled = analyzer.compile_teams(self.dfraw)
                 self.dlstatustext.set(year+ecode+".csv loaded.")
                 self.unlock_stats()
             except:
                 self.dlstatustext.set("Unable to fetch data.")
+
+        self.dlload.config(state="normal")
 
     def display_data(self):
         if int(self.dvteamentry.get()) in self.dfcompiled.index:

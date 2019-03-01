@@ -21,3 +21,10 @@ def compile_teams(rawdata):
     compileddata["avgFouled"] = round(compileddata["totalFouled"]/compileddata["gamesPlayed"], 2)
     compileddata["avgAuto"] = round(compileddata["totalAuto"]/compileddata["gamesPlayed"], 2)
     return compileddata
+
+def calculate_OPR(rawdata):
+    headers = [h for h in list(rawdata) if h.endswith(("Points", "Count"))]
+    
+    for rawrow in rawdata.iterrows():
+        pass
+        
