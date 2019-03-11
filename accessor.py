@@ -3,7 +3,7 @@ from urllib.request import Request, urlopen
 import json
 import csv
 
-def fetch_matchess(year, eventcode):
+def get_headers():
     tokenfile = open("token.secret", "r")
     token = str(base64.b64encode(tokenfile.readline().encode()))[2:-1]
 
@@ -12,6 +12,11 @@ def fetch_matchess(year, eventcode):
         "Authorization": "Basic " + token
     }
 
+    return headers
+
+def fetch_matches(year, eventcode):
+    headers = get_headers()
+    
     request = Request("https://frc-api.firstinspires.org/v2.0/"+year+"/matches/"+eventcode,
                       headers=headers) #This is the prod server! Change to staging once fixed.
     response = urlopen(request).read()
@@ -20,6 +25,16 @@ def fetch_matchess(year, eventcode):
     datafile = open("data/"+year+eventcode+".csv", "w+", newline="")
     json_to_csv(matchdata, datafile)
     datafile.close()
+
+def fetch_teams(year, eventcode):
+    headers = get_headers()
+
+    request = Request("https://frc-api.firstinspires.org/v2.0/"+year+"/teams?eventCode="+eventcode,
+                      headers = headers)
+    response = urlopen(request).read()
+    teams = json.loads(response)
+
+    return teams
 
 def json_to_csv(jsondict, csvfile):
     headers = list(jsondict[0].keys())[:-1] + \
