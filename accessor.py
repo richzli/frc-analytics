@@ -51,3 +51,6 @@ def json_to_csv(jsondict, csvfile):
             match[team["station"].lower()] = str(team["teamNumber"])
             match[team["station"].lower()+"dq"] = team["dq"]
         writer.writerow(match)
+
+def csv_to_2darray(csvfile):
+    return list(csv.reader(open(csvfile)))

@@ -1,4 +1,6 @@
 import pandas as pd
+import numpy as np
+import accessor
 
 def compile_teams(rawdata):
     datadict = {}
@@ -26,12 +28,17 @@ def get_team_numbers(teams):
     nums = []
     for team in teams["teams"]:
         nums.append(team["teamNumber"])
-
     return nums
 
-def calculate_OPR(rawdata):
-    headers = [h for h in list(rawdata) if h.endswith(("Points", "Count"))]
+def calculate_OPR(year, eventcode):
+    teamnums = get_team_numbers(accessor.fetch_teams(year, eventcode))
+    teamarray = []
+
     
+    
+    for 
+    
+    headers = [h for h in list(rawdata) if h.endswith(("Points", "Count"))]
     for rawrow in rawdata.iterrows():
         pass
         
