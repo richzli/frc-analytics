@@ -30,15 +30,34 @@ def get_team_numbers(teams):
         nums.append(team["teamNumber"])
     return nums
 
-def calculate_OPR(year, eventcode):
+def calculate_ratings(year, eventcode):
     teamnums = get_team_numbers(accessor.fetch_teams(year, eventcode))
     teamarray = []
+    statarray = []
 
-    
-    
-    for 
-    
-    headers = [h for h in list(rawdata) if h.endswith(("Points", "Count"))]
-    for rawrow in rawdata.iterrows():
-        pass
+    data = accessor.csv_to_2darray(year + eventcode + ".csv")
+    colnames = data.pop(0)
+
+    for row in data:
+        matchnumber = row[0]
+        redteams = row[1:4]
+        blueteams = row[4:7]
+        stats = row[7:]
+        redstats = stats[len(stats)//2:]
+        bluestats = stats[:len(stats)//2]
+
+        teamarray.append([1 if team in redteams else 0 for team in teamnums])
+        teamarray.append([1 if team in blueteams else 0 for team in teamnums]}
+        #i love python list comprehension
+
+        statarray.append(redstats+bluestats)
+        statarray.append(bluestats+redstats)
+
+    teammatrix = np.array(teamarray, dtype=int)
+    statmatrix = np.array(statarray, dtype=float)
+
+    ratings = do_math(teammatrix, statmatrix)
+    return ratings
         
+def do_math(teams, stats):
+    
