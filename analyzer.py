@@ -1,5 +1,6 @@
 import pandas as pd
 import numpy as np
+from scipy import linalg as ela
 import accessor
 
 def compile_teams(rawdata):
@@ -60,4 +61,9 @@ def calculate_ratings(year, eventcode):
     return ratings
         
 def do_math(teams, stats):
-    
+    L = ela.cholesky(teams@np.tranpose(teams),lower=True,check_finite=False)
+    ATb = np.transpose(teams)@stats
+    y = ela.solve_triangular(L, ATb, lower = True, check_finite = False)
+    x = ela.solve_triangular(L, y, trans = 'T', check_finite = False)
+
+    return x
