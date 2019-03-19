@@ -33,12 +33,17 @@ def get_team_numbers(teams):
 
 def calculate_ratings(year, eventcode):
     teamnums = get_team_numbers(accessor.fetch_teams(year, eventcode))
+    teamnparray = np.array([teamnums])
     teamarray = []
     statarray = []
 
-    data = accessor.csv_to_2darray(year + eventcode + ".csv")
+    data = accessor.csv_to_2darray("data/raw/" + year + eventcode + ".csv")
     colnames = data.pop(0)
-
+    statnames = colnames[7:]
+    statnames = ["teamNum"] + [col[3:] + "_OPR" \
+                 if col.startswith("red") else \
+                 col[4:] + "_DPR" for col in statnames]
+    
     for row in data:
         matchnumber = row[0]
         redteams = row[1:4]
@@ -58,11 +63,16 @@ def calculate_ratings(year, eventcode):
     statmatrix = np.array(statarray, dtype=float)
 
     ratings = do_math(teammatrix, statmatrix)
+    ratings = np.concatenate((teamnparray.T, ratings), axis=1)
+
+    pd.DataFrame(ratings).to_csv("data/processed/" + year + eventcode + ".csv",
+                                 header=statnames, index=None)
+    
     return ratings
         
 def do_math(teams, stats):
-    L = ela.cholesky(teams@np.tranpose(teams),lower=True,check_finite=False)
-    ATb = np.transpose(teams)@stats
+    L = ela.cholesky(teams@teams.T,lower=True,check_finite=False)
+    ATb = teams.T@stats
     y = ela.solve_triangular(L, ATb, lower = True, check_finite = False)
     x = ela.solve_triangular(L, y, trans = 'T', check_finite = False)
 
