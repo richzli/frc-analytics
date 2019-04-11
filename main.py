@@ -120,15 +120,15 @@ class StatsWindow(tk.Tk):
         year = self.dlyearentry.get()
         ecode = self.dlcodeentry.get()
 
-        if isfile("data/"+year+ecode+".csv"):
-            self.dfraw = pd.read_csv("data/"+year+ecode+".csv")
+        if isfile("data/raw/"+year+ecode+".csv"):
+            self.dfraw = pd.read_csv("data/raw/"+year+ecode+".csv")
             self.dfcompiled = analyzer.compile_teams(self.dfraw)
             self.dlstatustext.set(year+ecode+".csv loaded.")
             self.unlock_stats()
         else:
             try:
                 accessor.fetch_matches(year, ecode)
-                self.dfraw = pd.read_csv("data/"+year+ecode+".csv")
+                self.dfraw = pd.read_csv("data/raw/"+year+ecode+".csv")
                 self.dfcompiled = analyzer.compile_teams(self.dfraw)
                 self.dlstatustext.set(year+ecode+".csv loaded.")
                 self.unlock_stats()

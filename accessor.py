@@ -16,15 +16,26 @@ def get_headers():
 
 def fetch_matches(year, eventcode):
     headers = get_headers()
+    history = get_fetch_history()
+    already_fetched = history[year+eventcode]
     
+    """
     request = Request("https://frc-api.firstinspires.org/v2.0/"+year+"/matches/"+eventcode,
                       headers=headers) #This is the prod server! Change to staging once fixed.
     response = urlopen(request).read()
     matchdata = json.loads(response)["Matches"]
 
-    datafile = open("data/"+year+eventcode+".csv", "w+", newline="")
+    datafile = open("data/raw/"+year+eventcode+".csv", "w+", newline="")
     json_to_csv(matchdata, datafile)
     datafile.close()
+    """
+    
+    request_matches = Request("https://frc-api.firstinspires.org/v2.0/"+year+"/matches/"+eventcode,
+                      headers=headers)
+    request_scores_qual = Request("https://frc-api.firstinspires.org/v2.0/"+year+"/scores/"+eventcode+"/qual",
+                      headers=headers)
+    request_scores_playoff = Request("https://frc-api.firstinspires.org/v2.0/"+year+"/scores/"+eventcode+"/playoff",
+                      headers=headers)
 
 def fetch_teams(year, eventcode):
     headers = get_headers()
@@ -54,3 +65,12 @@ def json_to_csv(jsondict, csvfile):
 
 def csv_to_2darray(csvfile):
     return list(csv.reader(open(csvfile)))
+
+def get_fetch_history():
+    file = open("data/history.txt", "r")
+    history = json.loads(file.read())
+    file.close()
+
+    return history
+    
+    

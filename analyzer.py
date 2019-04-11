@@ -4,6 +4,7 @@ from scipy import linalg as ela
 import accessor
 
 def compile_teams(rawdata):
+    """
     datadict = {}
     for rawrow in rawdata.iterrows():
         for alliance in ("red", "blue"):
@@ -24,6 +25,9 @@ def compile_teams(rawdata):
     compileddata["avgFouled"] = round(compileddata["totalFouled"]/compileddata["gamesPlayed"], 2)
     compileddata["avgAuto"] = round(compileddata["totalAuto"]/compileddata["gamesPlayed"], 2)
     return compileddata
+    """
+    relevant_stats = ["Points", "Point", "Count"]
+    
 
 def get_team_numbers(teams):
     nums = []
@@ -77,3 +81,5 @@ def do_math(teams, stats):
     x = ela.solve_triangular(L, y, trans = 'T', check_finite = False)
 
     return x
+
+def 
