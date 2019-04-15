@@ -26,6 +26,7 @@ def compile_teams(rawdata):
     compileddata["avgAuto"] = round(compileddata["totalAuto"]/compileddata["gamesPlayed"], 2)
     return compileddata
     """
+    
     relevant_stats = ["Points", "Point", "Count"]
     
 

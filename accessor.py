@@ -2,6 +2,7 @@ import base64
 from urllib.request import Request, urlopen
 import json
 import csv
+from time import time
 
 def get_headers():
     tokenfile = open("token.secret", "r")
@@ -16,9 +17,14 @@ def get_headers():
 
 def fetch_matches(year, eventcode):
     headers = get_headers()
-    history = get_fetch_history()
-    already_fetched = history[year+eventcode]
     
+    history = get_fetch_history()
+    already_fetched = history.get(year+eventcode)
+
+    currtime = int(time())
+    if currtime - already_fetched < 30:
+        return
+
     """
     request = Request("https://frc-api.firstinspires.org/v2.0/"+year+"/matches/"+eventcode,
                       headers=headers) #This is the prod server! Change to staging once fixed.
@@ -32,10 +38,18 @@ def fetch_matches(year, eventcode):
     
     request_matches = Request("https://frc-api.firstinspires.org/v2.0/"+year+"/matches/"+eventcode,
                       headers=headers)
+    response_matches = urlopen(request_matches).read()
+    data_matches = json.loads(response_matches)["Matches"]
     request_scores_qual = Request("https://frc-api.firstinspires.org/v2.0/"+year+"/scores/"+eventcode+"/qual",
                       headers=headers)
+    response_scores_qual = urlopen(request_scores_qual).read()
+    data_scores_qual = json.loads(response_scores_qual)["MatchScores"]
     request_scores_playoff = Request("https://frc-api.firstinspires.org/v2.0/"+year+"/scores/"+eventcode+"/playoff",
                       headers=headers)
+    response_scores_playoff = urlopen(request_scores_playoff).read()
+    data_scores_playoff = json.loads(response_scores_playoff)["MatchScores"]
+
+    return data_matches, data_scores_qual, data_scores_playoff
 
 def fetch_teams(year, eventcode):
     headers = get_headers()
@@ -66,11 +80,12 @@ def json_to_csv(jsondict, csvfile):
 def csv_to_2darray(csvfile):
     return list(csv.reader(open(csvfile)))
 
+
 def get_fetch_history():
     file = open("data/history.txt", "r")
     history = json.loads(file.read())
     file.close()
 
     return history
-    
+
     
