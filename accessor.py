@@ -20,10 +20,14 @@ def fetch_matches(year, eventcode):
     
     history = get_fetch_history()
     already_fetched = history.get(year+eventcode)
+    already_fetched = already_fetched if already_fetched else 0
 
     currtime = int(time())
     if currtime - already_fetched < 30:
         return
+    else:
+        history[year+eventcode] = currtime
+        update_fetch_history(history)
 
     """
     request = Request("https://frc-api.firstinspires.org/v2.0/"+year+"/matches/"+eventcode,
@@ -49,7 +53,7 @@ def fetch_matches(year, eventcode):
     response_scores_playoff = urlopen(request_scores_playoff).read()
     data_scores_playoff = json.loads(response_scores_playoff)["MatchScores"]
 
-    return data_matches, data_scores_qual, data_scores_playoff
+    return [data_matches, data_scores_qual, data_scores_playoff]
 
 def fetch_teams(year, eventcode):
     headers = get_headers()
@@ -88,4 +92,7 @@ def get_fetch_history():
 
     return history
 
-    
+def update_fetch_history(history):
+    file = open("data/history.txt", "w")
+    file.write(json.dumps(history))
+    file.close()

@@ -27,7 +27,27 @@ def compile_teams(rawdata):
     return compileddata
     """
     
-    relevant_stats = ["Points", "Point", "Count"]
+    relevant_stat_endings = ("Points", "Point", "Count")
+    headers = ["matchNumber", "red1", "red2", "red3", "blue1", "blue2", "blue3"]
+
+    data_matches, data_scores_qual, data_scores_playoff = rawdata
+    all_stats = data_scores_qual[0]["alliances"][0].keys()
+    relevant_stats = [alliances[0][s] if s.endswith(relevant_stat_endings)
+                      for s in all_stats]
+
+    data_matches_array = [headers]
+
+    for game in data_matches:
+        matchNumber = game["tournamentLevel"]+str(game["matchNumber"])
+        row = {"matchNumber": matchNumber}
+        for team in game["teams"]:
+            row[team["station"].lower()] = team["teamNumber"]
+        data_matches_array.append([row[s] for s in headers])
+    
+    score_stats = ["matchNumber"] + ["red"+s for s in relevant_stats] + \
+                  ["blue"+s for s in relevant_stats]
+    
+    
     
 
 def get_team_numbers(teams):
@@ -82,5 +102,3 @@ def do_math(teams, stats):
     x = ela.solve_triangular(L, y, trans = 'T', check_finite = False)
 
     return x
-
-def 
