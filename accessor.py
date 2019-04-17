@@ -84,7 +84,6 @@ def json_to_csv(jsondict, csvfile):
 def csv_to_2darray(csvfile):
     return list(csv.reader(open(csvfile)))
 
-
 def get_fetch_history():
     file = open("data/history.txt", "r")
     history = json.loads(file.read())

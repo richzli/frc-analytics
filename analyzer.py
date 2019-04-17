@@ -3,7 +3,7 @@ import numpy as np
 from scipy import linalg as ela
 import accessor
 
-def compile_teams(rawdata):
+def compile_teams(year, eventcode):
     """
     datadict = {}
     for rawrow in rawdata.iterrows():
@@ -28,27 +28,49 @@ def compile_teams(rawdata):
     """
     
     relevant_stat_endings = ("Points", "Point", "Count")
-    headers = ["matchNumber", "red1", "red2", "red3", "blue1", "blue2", "blue3"]
+    matches_headers = ["matchNumber", "blue1", "blue2", "blue3", "red1", "red2", "red3"]
 
-    data_matches, data_scores_qual, data_scores_playoff = rawdata
-    all_stats = data_scores_qual[0]["alliances"][0].keys()
-    relevant_stats = [alliances[0][s] if s.endswith(relevant_stat_endings)
-                      for s in all_stats]
+    data_matches, data_scores_qual, data_scores_playoff = accessor.fetch_matches(year, eventcode)
+    all_stats = list(data_scores_qual[0]["alliances"][0].keys())
+    relevant_stats = []
+    for s in all_stats:
+        if s.endswith(relevant_stat_endings):
+            relevant_stats.append(s)
 
-    data_matches_array = [headers]
+    data_matches_array = []
 
     for game in data_matches:
         matchNumber = game["tournamentLevel"]+str(game["matchNumber"])
         row = {"matchNumber": matchNumber}
         for team in game["teams"]:
             row[team["station"].lower()] = team["teamNumber"]
-        data_matches_array.append([row[s] for s in headers])
+        data_matches_array.append([row[s] for s in matches_headers])
+
+    score_headers = ["matchNumber"] + ["blue"+s for s in relevant_stats] + \
+                  ["red"+s for s in relevant_stats]
+    score_stats_array = []
     
-    score_stats = ["matchNumber"] + ["red"+s for s in relevant_stats] + \
-                  ["blue"+s for s in relevant_stats]
-    
-    
-    
+    for game in data_scores_qual:
+        matchNumber = game["matchLevel"]+str(game["matchNumber"])
+        row = {"matchNumber": matchNumber}
+        for team in game["alliances"]:
+            for stat in relevant_stats:
+                row[team["alliance"].lower()+stat] = team[stat]
+        score_stats_array.append([row[s] for s in score_headers])
+
+    for game in data_scores_playoff:
+        matchNumber = game["matchLevel"]+str(game["matchNumber"])
+        row = {"matchNumber": matchNumber}
+        for team in game["alliances"]:
+            for stat in relevant_stats:
+                row[team["alliance"].lower()+stat] = team[stat]
+        score_stats_array.append([row[s] for s in score_headers])
+
+    matches_df = pd.DataFrame(data_matches_array, columns=matches_headers)
+    scores_df = pd.DataFrame(data_scores_playoff, columns=score_headers)
+
+    compiled = pd.merge(matches_df, scores_df, on="matchNumber")
+    compiled.to_csv("data/raw/" + year + eventcode + ".csv", index=False)
 
 def get_team_numbers(teams):
     nums = []
@@ -65,24 +87,24 @@ def calculate_ratings(year, eventcode):
     data = accessor.csv_to_2darray("data/raw/" + year + eventcode + ".csv")
     colnames = data.pop(0)
     statnames = colnames[7:]
-    statnames = ["teamNum"] + [col[3:] + "_OPR" \
-                 if col.startswith("red") else \
-                 col[4:] + "_DPR" for col in statnames]
+    statnames = ["teamNum"] + [col[4:] + "_OPR" \
+                 if col.startswith("blue") else \
+                 col[3:] + "_DPR" for col in statnames]
     
     for row in data:
         matchnumber = row[0]
-        redteams = row[1:4]
-        blueteams = row[4:7]
+        blueteams = row[1:4]
+        redteams = row[4:7]
         stats = row[7:]
-        redstats = stats[len(stats)//2:]
-        bluestats = stats[:len(stats)//2]
+        bluestats = stats[len(stats)//2:]
+        redstats = stats[:len(stats)//2]
 
+        teamarray.append([1 if team in blueteams else 0 for team in teamnums])
         teamarray.append([1 if team in redteams else 0 for team in teamnums])
-        teamarray.append([1 if team in blueteams else 0 for team in teamnums]}
         #i love python list comprehension
 
-        statarray.append(redstats+bluestats)
         statarray.append(bluestats+redstats)
+        statarray.append(redstats+bluestats)
 
     teammatrix = np.array(teamarray, dtype=int)
     statmatrix = np.array(statarray, dtype=float)
