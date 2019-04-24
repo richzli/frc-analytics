@@ -23,7 +23,7 @@ def fetch_matches(year, eventcode):
     already_fetched = already_fetched if already_fetched else 0
 
     currtime = int(time())
-    if currtime - already_fetched < 30:
+    if currtime - already_fetched < 10:
         return
     else:
         history[year+eventcode] = currtime

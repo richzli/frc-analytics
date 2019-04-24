@@ -1,6 +1,7 @@
 import pandas as pd
 import numpy as np
 from scipy import linalg as ela
+import os
 import accessor
 
 def compile_teams(year, eventcode):
@@ -55,7 +56,7 @@ def compile_teams(year, eventcode):
         row = {"matchNumber": matchNumber}
         for team in game["alliances"]:
             for stat in relevant_stats:
-                row[team["alliance"].lower()+stat] = team[stat]
+                row[team["alliance"].lower()+stat] = int(team[stat])
         score_stats_array.append([row[s] for s in score_headers])
 
     for game in data_scores_playoff:
@@ -63,13 +64,21 @@ def compile_teams(year, eventcode):
         row = {"matchNumber": matchNumber}
         for team in game["alliances"]:
             for stat in relevant_stats:
-                row[team["alliance"].lower()+stat] = team[stat]
+                row[team["alliance"].lower()+stat] = int(team[stat])
         score_stats_array.append([row[s] for s in score_headers])
 
     matches_df = pd.DataFrame(data_matches_array, columns=matches_headers)
-    scores_df = pd.DataFrame(data_scores_playoff, columns=score_headers)
+    scores_df = pd.DataFrame(score_stats_array, columns=score_headers)
 
-    compiled = pd.merge(matches_df, scores_df, on="matchNumber")
+    #print(matches_df)
+    #print(scores_df)
+    
+    if not os.path.exists("./data/raw"):
+        os.mkdir("./data/raw")
+    
+    compiled = pd.concat([matches_df.set_index("matchNumber"),
+                          scores_df.set_index("matchNumber")], axis=1,
+                         join="inner").reset_index()
     compiled.to_csv("data/raw/" + year + eventcode + ".csv", index=False)
 
 def get_team_numbers(teams):
@@ -109,9 +118,15 @@ def calculate_ratings(year, eventcode):
     teammatrix = np.array(teamarray, dtype=int)
     statmatrix = np.array(statarray, dtype=float)
 
+    print(teammatrix)
+    print(statmatrix)
+    
     ratings = do_math(teammatrix, statmatrix)
     ratings = np.concatenate((teamnparray.T, ratings), axis=1)
 
+    if not os.path.exists("./data/processed"):
+        os.mkdir("./data/processed")
+    
     pd.DataFrame(ratings).to_csv("data/processed/" + year + eventcode + ".csv",
                                  header=statnames, index=None)
     
