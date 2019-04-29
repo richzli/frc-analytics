@@ -70,9 +70,6 @@ def compile_teams(year, eventcode):
     matches_df = pd.DataFrame(data_matches_array, columns=matches_headers)
     scores_df = pd.DataFrame(score_stats_array, columns=score_headers)
 
-    #print(matches_df)
-    #print(scores_df)
-    
     if not os.path.exists("./data/raw"):
         os.mkdir("./data/raw")
     
@@ -103,7 +100,9 @@ def calculate_ratings(year, eventcode):
     for row in data:
         matchnumber = row[0]
         blueteams = row[1:4]
+        blueteams = [int(t) for t in blueteams]
         redteams = row[4:7]
+        redteams = [int(t) for t in redteams]
         stats = row[7:]
         bluestats = stats[len(stats)//2:]
         redstats = stats[:len(stats)//2]
@@ -111,15 +110,12 @@ def calculate_ratings(year, eventcode):
         teamarray.append([1 if team in blueteams else 0 for team in teamnums])
         teamarray.append([1 if team in redteams else 0 for team in teamnums])
         #i love python list comprehension
-
+        
         statarray.append(bluestats+redstats)
         statarray.append(redstats+bluestats)
 
     teammatrix = np.array(teamarray, dtype=int)
     statmatrix = np.array(statarray, dtype=float)
-
-    print(teammatrix)
-    print(statmatrix)
     
     ratings = do_math(teammatrix, statmatrix)
     ratings = np.concatenate((teamnparray.T, ratings), axis=1)
@@ -130,10 +126,10 @@ def calculate_ratings(year, eventcode):
     pd.DataFrame(ratings).to_csv("data/processed/" + year + eventcode + ".csv",
                                  header=statnames, index=None)
     
-    return ratings
+    #return ratings
         
 def do_math(teams, stats):
-    L = ela.cholesky(teams@teams.T,lower=True,check_finite=False)
+    L = ela.cholesky(teams.T@teams, lower = True, check_finite = False)
     ATb = teams.T@stats
     y = ela.solve_triangular(L, ATb, lower = True, check_finite = False)
     x = ela.solve_triangular(L, y, trans = 'T', check_finite = False)
