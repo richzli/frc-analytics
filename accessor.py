@@ -3,6 +3,7 @@ from urllib.request import Request, urlopen
 import json
 import csv
 from time import time
+import os
 
 def get_headers():
     tokenfile = open("token.secret", "r")
@@ -16,29 +17,16 @@ def get_headers():
     return headers
 
 def fetch_matches(year, eventcode):
+    eventcode = eventcode.upper()
     headers = get_headers()
     
     history = get_fetch_history()
-    already_fetched = history.get(year+eventcode)
-    already_fetched = already_fetched if already_fetched else 0
-
+    
     currtime = int(time())
-    if currtime - already_fetched < 10:
-        return
+    if currtime - history < 30:
+        raise RateLimitError("Too fast! Try again in " + str(30-currtime+history) + " s.")
     else:
-        history[year+eventcode] = currtime
-        update_fetch_history(history)
-
-    """
-    request = Request("https://frc-api.firstinspires.org/v2.0/"+year+"/matches/"+eventcode,
-                      headers=headers) #This is the prod server! Change to staging once fixed.
-    response = urlopen(request).read()
-    matchdata = json.loads(response)["Matches"]
-
-    datafile = open("data/raw/"+year+eventcode+".csv", "w+", newline="")
-    json_to_csv(matchdata, datafile)
-    datafile.close()
-    """
+        update_fetch_history(currtime)
     
     request_matches = Request("https://frc-api.firstinspires.org/v2.0/"+year+"/matches/"+eventcode,
                       headers=headers)
@@ -52,7 +40,7 @@ def fetch_matches(year, eventcode):
                       headers=headers)
     response_scores_playoff = urlopen(request_scores_playoff).read()
     data_scores_playoff = json.loads(response_scores_playoff)["MatchScores"]
-
+    
     return [data_matches, data_scores_qual, data_scores_playoff]
 
 def fetch_teams(year, eventcode):
@@ -85,13 +73,21 @@ def csv_to_2darray(csvfile):
     return list(csv.reader(open(csvfile)))
 
 def get_fetch_history():
-    file = open("data/history.txt", "r")
-    history = json.loads(file.read())
-    file.close()
-
-    return history
+    if os.path.isfile("data/history.txt"):
+        file = open("data/history.txt", "r")
+        history = int(file.read())
+        file.close()
+        return history
+    else:
+        file = open("data/history.txt", "w")
+        file.write("0")
+        file.close()
+        return 0
 
 def update_fetch_history(history):
     file = open("data/history.txt", "w")
-    file.write(json.dumps(history))
+    file.write(str(history))
     file.close()
+
+class RateLimitError(Exception):
+    pass
