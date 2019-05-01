@@ -1,3 +1,7 @@
+"""
+various functions that get data from the api
+"""
+
 import base64
 from urllib.request import Request, urlopen
 import json
@@ -76,13 +80,13 @@ def get_fetch_history():
     if not os.path.exists("./data"):
         os.mkdir("./data")
         
-    if os.path.isfile("data/history.txt"):
-        file = open("data/history.txt", "r")
+    if os.path.isfile("./data/history.txt"):
+        file = open("./data/history.txt", "r")
         history = int(file.read())
         file.close()
         return history
     else:
-        file = open("data/history.txt", "w")
+        file = open("./data/history.txt", "w")
         file.write("0")
         file.close()
         return 0
@@ -91,7 +95,7 @@ def update_fetch_history(history):
     if not os.path.exists("./data"):
         os.mkdir("./data")
     
-    file = open("data/history.txt", "w")
+    file = open("./data/history.txt", "w")
     file.write(str(history))
     file.close()
 

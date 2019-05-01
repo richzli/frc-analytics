@@ -1,3 +1,7 @@
+"""
+various functions that make data into actual stats
+"""
+
 import pandas as pd
 import numpy as np
 from scipy import linalg as ela
@@ -55,7 +59,7 @@ def compile_teams(year, eventcode):
     compiled = pd.concat([matches_df.set_index("matchNumber"),
                           scores_df.set_index("matchNumber")], axis=1,
                          join="inner").reset_index()
-    compiled.to_csv("data/raw/" + year + eventcode + ".csv", index=False)
+    compiled.to_csv("./data/raw/" + year + eventcode + ".csv", index=False)
 
 def get_team_numbers(teams):
     nums = []
@@ -69,7 +73,7 @@ def calculate_ratings(year, eventcode):
     teamarray = []
     statarray = []
 
-    data = accessor.csv_to_2darray("data/raw/" + year + eventcode + ".csv")
+    data = accessor.csv_to_2darray("./data/raw/" + year + eventcode + ".csv")
     colnames = data.pop(0)
     statnames = colnames[7:]
     statnames = ["teamNum"] + [col[4:] + "_OPR" \
@@ -102,7 +106,7 @@ def calculate_ratings(year, eventcode):
     if not os.path.exists("./data/processed"):
         os.mkdir("./data/processed")
     
-    pd.DataFrame(ratings).to_csv("data/processed/" + year + eventcode + ".csv",
+    pd.DataFrame(ratings).to_csv("./data/processed/" + year + eventcode + ".csv",
                                  header=statnames, index=None)
     
     #return ratings

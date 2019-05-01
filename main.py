@@ -1,8 +1,15 @@
+"""
+run this to make the gui
+"""
+
 import accessor
 import analyzer
 import pandas as pd
 import tkinter as tk
-from os.path import isfile
+import os
+
+def openfile(filename):
+    os.startfile(filename, "open")
 
 class StatsWindow(tk.Tk):
     def __init__(self, *args, **kwargs):
@@ -53,7 +60,6 @@ class StatsWindow(tk.Tk):
         self.dlstatus = tk.Entry(self.dataloader, textvariable=self.dlstatustext,
                                 font = self.font1 + (self.fontsize1,), state="disabled",
                                 justify="center")
-        self.dlstatustext.set("No data loaded.")
         self.dlstatus.grid(row=4, column=0, columnspan=2)
 
     def analyze_match(self):
@@ -69,9 +75,20 @@ class StatsWindow(tk.Tk):
             self.dlstatustext.set("Done!")
         except accessor.RateLimitError as e:
             self.dlstatustext.set(str(e))
+            self.dlload.config(state="normal")
+            return
         except Exception:
             self.dlstatustext.set("Could not fetch data.")
-        
+            self.dlload.config(state="normal")
+            return
+
+        try:
+            openfile(".\\data\\processed\\" + year + ecode + ".csv")
+        except:
+            self.dlstatustext.set("Could not open file.")
+            self.dlload.config(state="normal")
+            return
+
         self.dlload.config(state="normal")
 
 def main():
