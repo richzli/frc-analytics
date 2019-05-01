@@ -73,6 +73,9 @@ def csv_to_2darray(csvfile):
     return list(csv.reader(open(csvfile)))
 
 def get_fetch_history():
+    if not os.path.exists("./data"):
+        os.mkdir("./data")
+        
     if os.path.isfile("data/history.txt"):
         file = open("data/history.txt", "r")
         history = int(file.read())
@@ -85,6 +88,9 @@ def get_fetch_history():
         return 0
 
 def update_fetch_history(history):
+    if not os.path.exists("./data"):
+        os.mkdir("./data")
+    
     file = open("data/history.txt", "w")
     file.write(str(history))
     file.close()
