@@ -68,6 +68,8 @@ def get_team_numbers(teams):
     return nums
 
 def calculate_ratings(year, eventcode):
+    eventcode = eventcode.upper()
+    
     teamnums = get_team_numbers(accessor.fetch_teams(year, eventcode))
     teamnparray = np.array([teamnums])
     teamarray = []
