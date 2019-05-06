@@ -114,9 +114,9 @@ def calculate_ratings(year, eventcode):
     #return ratings
         
 def do_math(teams, stats):
-    L = ela.cholesky(teams.T@teams, lower = True, check_finite = False)
-    ATb = teams.T@stats
+    L = ela.cholesky((teams.T @ teams), lower = True, check_finite = False)
+    ATb = (teams.T @ stats)
     y = ela.solve_triangular(L, ATb, lower = True, check_finite = False)
-    x = ela.solve_triangular(L, y, trans = 'T', check_finite = False)
+    x = ela.solve_triangular(L.T, y, check_finite = False)
 
     return x
