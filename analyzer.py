@@ -41,7 +41,8 @@ def compile_teams(year, eventcode):
             for stat in relevant_stats:
                 row[team["alliance"].lower()+stat] = int(team[stat])
         score_stats_array.append([row[s] for s in score_headers])
-
+    
+    """
     for game in data_scores_playoff:
         matchNumber = game["matchLevel"]+str(game["matchNumber"])
         row = {"matchNumber": matchNumber}
@@ -49,7 +50,8 @@ def compile_teams(year, eventcode):
             for stat in relevant_stats:
                 row[team["alliance"].lower()+stat] = int(team[stat])
         score_stats_array.append([row[s] for s in score_headers])
-
+    """
+    
     matches_df = pd.DataFrame(data_matches_array, columns=matches_headers)
     scores_df = pd.DataFrame(score_stats_array, columns=score_headers)
 
