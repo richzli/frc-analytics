@@ -89,8 +89,8 @@ def calculate_ratings(year, eventcode):
         redteams = row[4:7]
         redteams = [int(t) for t in redteams]
         stats = row[7:]
-        bluestats = stats[len(stats)//2:]
-        redstats = stats[:len(stats)//2]
+        bluestats = stats[:len(stats)//2]
+        redstats = stats[len(stats)//2:]
 
         teamarray.append([1 if team in blueteams else 0 for team in teamnums])
         teamarray.append([1 if team in redteams else 0 for team in teamnums])
