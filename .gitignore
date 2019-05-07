@@ -1,3 +1,4 @@
 *.secret
 *.csv
 *.pyc
+history.txt
