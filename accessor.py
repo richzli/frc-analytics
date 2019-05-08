@@ -1,5 +1,6 @@
 """
 various functions that get data from the api
+author: @richzli
 """
 
 import base64
