@@ -55,7 +55,8 @@ class StatsWindow(tk.Tk):
         self.dlyearlabel = tk.Label(self.dataloader, text = "Year:",
                                    font = self.font1 + (self.fontsize1,))
         self.dlyearlabel.grid(row=1, column=0, sticky="E")
-
+        
+        #Input Year
         self.dlyearentry = tk.Entry(self.dataloader, width=8,
                                     font = self.font1 + (self.fontsize1,))
         self.dlyearentry.grid(row=1, column=1, sticky="W")
@@ -65,17 +66,18 @@ class StatsWindow(tk.Tk):
 
         self.dlcodelabel.grid(row=2, column=0, sticky="E")
         
-        #Input Year
+        #Input Competition Code
         self.dlcodeentry = tk.Entry(self.dataloader, width=8,
                                     font = self.font1 + (self.fontsize1,))
-        #Input Competition Code
         self.dlcodeentry.grid(row=2, column=1, sticky="W")
-
+        
+        #button
         self.dlload = tk.Button(self.dataloader, text = "Get Data",
                                 font = self.font1 + (self.fontsize1,),
                                 command = self.analyze_match)
         self.dlload.grid(row=3, column=0, columnspan=2)
-
+        
+        #status box
         self.dlstatustext = tk.StringVar()
         self.dlstatus = tk.Entry(self.dataloader, textvariable=self.dlstatustext,
                                 font = self.font1 + (self.fontsize1,), state="disabled",
@@ -93,7 +95,8 @@ analyze_match function takes in the data you inputed for the competition code an
         year = self.dlyearentry.get()
         ecode = self.dlcodeentry.get()
 
-        #Trys to find the data based on the year and competiton code enterted. If the data can not be found due to wrong Year or Competition code it displays the error message "Could not fetch data."
+        #Tries to find the data based on the year and competiton code entered.
+        #If the data can not be found due to wrong Year or Competition code it displays the error message "Could not fetch data."
         try:
             analyzer.compile_teams(year, ecode)
             analyzer.calculate_ratings(year, ecode)
@@ -106,7 +109,8 @@ analyze_match function takes in the data you inputed for the competition code an
             self.dlstatustext.set("Could not fetch data.")
             self.dlload.config(state="normal")
             return
-        #Trys to open the file of the finished data. If the file is not made correctly displays the error message "Could not open file"
+        #Tries to open the file of the finished data. If the file is not made correctly 
+        #or it's not a Windows computer status box displays the error message "Could not open file"
         try:
             openfile(".\\data\\processed\\" + year + ecode + ".csv")
         except:
