@@ -23,3 +23,4 @@ sampleuser:7eaa6338-a097-4221-ac04-b6120fcc4d49
 2. In the GUI that pops up, put the year name in the text box labeled "Year:" and put the competition code in the text box labeled "Competition Code:".
 3. Click the "Get Data" button.
 4. If you are on a Windows computer, a file with the calculated OPRs and DPRS should open up. If not, you can find the compiled data in `./data/processed/`.
+5. Remember to use this program at least once everyone 6 months, otherwise your key may get revoked for inactivity.
