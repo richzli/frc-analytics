@@ -19,7 +19,7 @@ sampleuser:7eaa6338-a097-4221-ac04-b6120fcc4d49
 
 ## Usage
 
-1. Run FRCAnalytics.exe.
+1. Run FRCAnalytics.exe. (You may need to wait around 20 to 30 seconds for libraries to be imported. If you are sure that the .exe file does not work, you can also run `main.py` through IDLE.)
 2. In the GUI that pops up, put the year name in the text box labeled "Year:" and put the competition code in the text box labeled "Competition Code:".
 3. Click the "Get Data" button.
 4. If you are on a Windows computer, a file with the calculated OPRs and DPRS should open up. If not, you can find the compiled data in `./data/processed/`.
